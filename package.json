@@ -1,7 +1,13 @@
 {
-  "name": "tauri-appmagic-design",
+  "name": "magic-design",
   "private": true,
   "version": "0.1.0",
+  "description": "A Tauri desktop app for extracting website styles and generating design guides",
+  "author": "Horldsence",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Horldsence/magic-design"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

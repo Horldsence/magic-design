@@ -1,9 +1,10 @@
 [package]
-name = "tauri-appmagic-design"
+name = "magic-design"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
+description = "A Tauri desktop app for extracting website styles and generating design guides"
+authors = ["Horldsence"]
 edition = "2021"
+repository = "https://github.com/Horldsence/magic-design"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -11,7 +12,7 @@ edition = "2021"
 # The `_lib` suffix may seem redundant but it is necessary
 # to make the lib name unique and wouldn't conflict with the bin name.
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
-name = "tauri_appmagic_design_lib"
+name = "magic_design_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    tauri_appmagic_design_lib::run()
+    magic_design_lib::run()
 }
