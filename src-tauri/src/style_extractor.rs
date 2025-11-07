@@ -3,6 +3,22 @@ use regex::Regex;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
+use std::sync::LazyLock;
+
+// Constants for limiting extracted items
+const MAX_COLORS: usize = 10;
+const MAX_FONTS: usize = 10;
+const MAX_FONT_SIZES: usize = 15;
+const MAX_SPACING: usize = 15;
+
+// Lazy static regex patterns for performance
+static COLOR_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(?i)(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))").unwrap()
+});
+
+static SPACING_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"(\d+(?:\.\d+)?(?:px|em|rem|%|vh|vw))").unwrap()
+});
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StyleGuide {
@@ -105,10 +121,10 @@ fn extract_colors(document: &Html) -> ColorScheme {
     }
     
     ColorScheme {
-        primary_colors: primary_colors.into_iter().take(10).collect(),
-        background_colors: background_colors.into_iter().take(10).collect(),
-        text_colors: text_colors.into_iter().take(10).collect(),
-        border_colors: border_colors.into_iter().take(10).collect(),
+        primary_colors: primary_colors.into_iter().take(MAX_COLORS).collect(),
+        background_colors: background_colors.into_iter().take(MAX_COLORS).collect(),
+        text_colors: text_colors.into_iter().take(MAX_COLORS).collect(),
+        border_colors: border_colors.into_iter().take(MAX_COLORS).collect(),
     }
 }
 
@@ -119,9 +135,7 @@ fn extract_colors_from_style(
     text: &mut HashSet<String>,
     border: &mut HashSet<String>,
 ) {
-    let color_regex = Regex::new(r"(?i)(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))").unwrap();
-    
-    for cap in color_regex.captures_iter(style) {
+    for cap in COLOR_REGEX.captures_iter(style) {
         let color = cap[1].to_string();
         
         if style.contains("background") {
@@ -145,10 +159,8 @@ fn extract_colors_from_css(
     text: &mut HashSet<String>,
     border: &mut HashSet<String>,
 ) {
-    let color_regex = Regex::new(r"(?i)(#[0-9a-f]{3,8}|rgba?\([^)]+\)|hsla?\([^)]+\))").unwrap();
-    
     for line in css.lines() {
-        for cap in color_regex.captures_iter(line) {
+        for cap in COLOR_REGEX.captures_iter(line) {
             let color = cap[1].to_string();
             
             if line.contains("background") {
@@ -200,10 +212,10 @@ fn extract_typography(document: &Html) -> Typography {
     }
     
     Typography {
-        font_families: font_families.into_iter().take(10).collect(),
-        font_sizes: font_sizes.into_iter().take(15).collect(),
-        font_weights: font_weights.into_iter().take(10).collect(),
-        line_heights: line_heights.into_iter().take(10).collect(),
+        font_families: font_families.into_iter().take(MAX_FONTS).collect(),
+        font_sizes: font_sizes.into_iter().take(MAX_FONT_SIZES).collect(),
+        font_weights: font_weights.into_iter().take(MAX_FONTS).collect(),
+        line_heights: line_heights.into_iter().take(MAX_FONTS).collect(),
     }
 }
 
@@ -279,9 +291,9 @@ fn extract_spacing(document: &Html) -> SpacingSystem {
     }
     
     SpacingSystem {
-        margins: margins.into_iter().take(15).collect(),
-        paddings: paddings.into_iter().take(15).collect(),
-        gaps: gaps.into_iter().take(10).collect(),
+        margins: margins.into_iter().take(MAX_SPACING).collect(),
+        paddings: paddings.into_iter().take(MAX_SPACING).collect(),
+        gaps: gaps.into_iter().take(MAX_FONTS).collect(),
     }
 }
 
@@ -291,21 +303,19 @@ fn extract_spacing_from_style(
     paddings: &mut HashSet<String>,
     gaps: &mut HashSet<String>,
 ) {
-    let spacing_regex = Regex::new(r"(\d+(?:\.\d+)?(?:px|em|rem|%|vh|vw))").unwrap();
-    
     for line in style.split(';') {
         if line.contains("margin") {
-            for cap in spacing_regex.captures_iter(line) {
+            for cap in SPACING_REGEX.captures_iter(line) {
                 margins.insert(cap[1].to_string());
             }
         }
         if line.contains("padding") {
-            for cap in spacing_regex.captures_iter(line) {
+            for cap in SPACING_REGEX.captures_iter(line) {
                 paddings.insert(cap[1].to_string());
             }
         }
         if line.contains("gap") {
-            for cap in spacing_regex.captures_iter(line) {
+            for cap in SPACING_REGEX.captures_iter(line) {
                 gaps.insert(cap[1].to_string());
             }
         }
@@ -318,21 +328,19 @@ fn extract_spacing_from_css(
     paddings: &mut HashSet<String>,
     gaps: &mut HashSet<String>,
 ) {
-    let spacing_regex = Regex::new(r"(\d+(?:\.\d+)?(?:px|em|rem|%|vh|vw))").unwrap();
-    
     for line in css.lines() {
         if line.contains("margin") {
-            for cap in spacing_regex.captures_iter(line) {
+            for cap in SPACING_REGEX.captures_iter(line) {
                 margins.insert(cap[1].to_string());
             }
         }
         if line.contains("padding") {
-            for cap in spacing_regex.captures_iter(line) {
+            for cap in SPACING_REGEX.captures_iter(line) {
                 paddings.insert(cap[1].to_string());
             }
         }
         if line.contains("gap") {
-            for cap in spacing_regex.captures_iter(line) {
+            for cap in SPACING_REGEX.captures_iter(line) {
                 gaps.insert(cap[1].to_string());
             }
         }

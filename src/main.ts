@@ -41,7 +41,28 @@ async function extractStyles() {
     showStatus("✅ Style guide generated successfully!", "success");
   } catch (error) {
     console.error("Error extracting styles:", error);
-    showStatus(`❌ Error: ${error}`, "error");
+    
+    // Provide more specific error messages based on error type
+    const errorMessage = String(error);
+    let userMessage = "❌ Error: ";
+    
+    if (errorMessage.includes("Failed to fetch website")) {
+      if (errorMessage.includes("dns") || errorMessage.includes("resolve")) {
+        userMessage += "Could not resolve the website URL. Please check the URL and try again.";
+      } else if (errorMessage.includes("timeout")) {
+        userMessage += "Request timed out. The website might be slow or unreachable.";
+      } else if (errorMessage.includes("connection")) {
+        userMessage += "Could not connect to the website. Please check your internet connection.";
+      } else {
+        userMessage += `Network error: ${errorMessage}`;
+      }
+    } else if (errorMessage.includes("Failed to extract styles")) {
+      userMessage += "Could not parse the website's HTML. The page structure might be unusual.";
+    } else {
+      userMessage += errorMessage;
+    }
+    
+    showStatus(userMessage, "error");
   } finally {
     extractButtonEl.disabled = false;
     extractButtonEl.innerHTML = '<span class="button-text">Extract Styles</span>';

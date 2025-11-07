@@ -2,12 +2,6 @@ mod style_extractor;
 
 use style_extractor::{extract_styles, fetch_website_blocking, generate_markdown};
 
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
 #[tauri::command]
 fn extract_website_styles(url: String) -> Result<String, String> {
     // Fetch the website HTML
@@ -30,7 +24,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
-        .invoke_handler(tauri::generate_handler![greet, extract_website_styles])
+        .invoke_handler(tauri::generate_handler![extract_website_styles])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
